@@ -29,7 +29,7 @@ It is tested with Snakemake 7.26 (the version used for the article) and Snakemak
 ## Installation
 
 ```bash
-git clone https://github.com/<org>/snodiscov.git && cd snodiscov
+git clone git@github.com:abthiaw/snoDiscOv.git && cd snodiscov
 python -m venv ~/venvs/snodiscov && source ~/venvs/snodiscov/bin/activate
 pip install .            # Snakemake 7.26+ (keeps an existing install), pandas, pyyaml
 pip install .[slurm]     # optional: Snakemake >= 8 + SLURM executor plugin
