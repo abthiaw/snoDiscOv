@@ -1,4 +1,4 @@
-i# SnoDiscOv : Discovery and Omics-based Validation 
+# SnoDiscOv : Discovery and Omics-based Validation 
 
 A Snakemake-based bioinformatics pipeline for integrative transcriptomic discovery and characterization of human small nucleolar RNAs (snoRNAs).
 
