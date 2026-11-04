@@ -1,6 +1,11 @@
-i# snoDiscov: SnoDiscOv : Discovery and Omics-based Validation 
+i# SnoDiscOv : Discovery and Omics-based Validation 
 
-Integrative transcriptomic discovery of human snoRNAs.
+A Snakemake-based bioinformatics pipeline for integrative transcriptomic discovery and characterization of human small nucleolar RNAs (snoRNAs).
+
+**Associated publication:**
+
+***Expanding the Landscape of Human snoRNAs through Integrative Transcriptomic Analyses***
+
 
 snoDiscov runs in two stages:
 
