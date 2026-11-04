@@ -177,13 +177,13 @@ Copy the pin files next to the env files in `snodiscov/workflow/envs/` and Snake
 
 ## Data availability
 
-| Dataset | Role | Source |
+| Dataset | Role | Source/Accession number |
 |---|---|---|
-| Human tissues / cell lines total RNA-seq | discovery | TODO GEO/SRA accessions |
-| DKC1 knock-down (HCT116) | dkc1_depletion | TODO |
-| NOP58 knock-down | nop58_depletion | TODO |
-| SNU13 (NHP2L1) knock-down | snu13_depletion | TODO |
-| SNU13 RiPEN-seq | snu13_ripenseq | SRA SRR12998931–SRR12998934, SRR15609476–SRR15609479 |
+| Human tissues / TGIRTseq | discovery | PRJNA1478292, GSE126797, GSE157846|
+| DKC1 knock-down (HCT116) | dkc1_depletion | GSE126797 |
+| NOP58 knock-down | nop58_depletion | PRJNA1478292 |
+| SNU13 (NHP2L1) knock-down | snu13_depletion | PRJNA1478292 |
+| SNU13 RiPEN-seq | snu13_ripenseq | SRR12998931–SRR12998934, SRR15609476–SRR15609479 |
 | Genome GRCh38 (Ensembl 109) | reference | Zenodo 8007660 |
 | Annotation hg38 Ensembl 109 + Scott lab snoRNAs/tRNAs (2024) | reference | Zenodo 10713009 |
 
