@@ -1,0 +1,5 @@
+channels: [conda-forge, nodefaults]
+dependencies:
+  - coreutils=9.5
+  - gawk=5.3
+  - sed=4.8

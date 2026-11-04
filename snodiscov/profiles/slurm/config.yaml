@@ -1,0 +1,33 @@
+# Snakemake 7.x profile for SLURM (used automatically by Snakemake < 8;
+# Snakemake >= 8 reads config.v8+.yaml in this same directory).
+#
+# The in-house slurmSubmit.py + --immediate-submit approach is NOT used: with
+# immediate submission, local rules (downloads, symlinks, small cat/awk steps)
+# would run before their cluster-side inputs exist. Here Snakemake submits each
+# job when its inputs are ready; threads/resources declared in the rules give
+# the sbatch request, so no separate cluster-config file is needed.
+cluster:
+  mkdir -p logs/slurm &&
+  sbatch --parsable
+    --account={resources.slurm_account}
+    --job-name=smk.{rule}
+    --cpus-per-task={threads}
+    --mem={resources.mem_mb}M
+    --time={resources.runtime}
+    --output=logs/slurm/{rule}.%j.out
+cluster-cancel: scancel
+jobs: 200
+use-conda: true
+latency-wait: 120
+keep-going: true
+rerun-incomplete: true
+# only re-run on input changes (not on code/version metadata), as in the
+# original config; avoids re-downloading or re-installing after an upgrade
+rerun-triggers: mtime
+printshellcmds: true
+restart-times: 1
+max-jobs-per-second: 5
+default-resources:
+  # slurm_account is given on the command line: snodiscov run --account def-xxx
+  - mem_mb=20000
+  - runtime=180                     # minutes

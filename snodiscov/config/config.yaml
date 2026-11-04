@@ -1,0 +1,122 @@
+# =============================================================================
+#  snoDiscov configuration template
+#  `snodiscov init` copies this file to <outdir>/config.yaml and fills `manifest`.
+# =============================================================================
+
+manifest: manifest.tsv          # written by `snodiscov init` / `snodiscov manifest`
+
+# Where downloaded references and third-party tools are stored.
+# Relative paths are relative to the run directory. Use an absolute, shared
+# path (e.g. $HOME/projects/def-xxx/snodiscov_resources) to reuse it across runs.
+resources_dir: resources
+
+# -----------------------------------------------------------------------------
+# Remote resources (reference genome, annotation, adapters). All files are fetched by `snodiscov setup` on a node with
+# internet access (login / interactive node) and MD5-verified (MD5 from the
+# Zenodo API when not given). Spec types:
+#   zenodo: {record: <id>, file: <name>}   |   url: <https://...>   |   path: <local file>
+#   package: <file shipped with snodiscov, relative to the package, e.g. data/Adapters/...>
+#   optional: md5, decompress (gunzip after download), rename (local file name)
+# -----------------------------------------------------------------------------
+resources:
+  genome_fasta:
+    zenodo: {record: 8007660, file: Homo_sapiens.GRCh38.dna.primary_assembly_V109.fa}
+    # alternative: url: https://ftp.ensembl.org/pub/release-109/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz
+    #              decompress: true   (only for .gz sources)
+  annotation_gtf:
+    zenodo: {record: 10713009, file: hg38_Ensembl_V109_Scottlab_2024_snoRNAs_tRNA.gtf}
+  adapters_nextseq:
+    package: data/Adapters/Adapters-PE_NextSeq.fa
+  adapters_ripenseq:              # TruSeq small-RNA adapters (RA5/RA3)
+    package: data/Adapters/Adapters-PE_TruSeq.fa
+  adapters_rbp_toronto:
+    package: data/Adapters/Adapters-PE_RBP_Toronto.fa
+  # Optional: chromosome sizes for bigWig. If absent, derived from the STAR
+  # index (chrNameLength.txt with a 'chr' prefix, as in the original pipeline).
+  # chrom_sizes:
+  #   zenodo: {record: <id>, file: hg38_V109_chrom.sizes}
+
+# Third-party tools not available on Bioconda, pinned to an exact commit/tag.
+tools:
+  coco:
+    repo: https://github.com/scottgroup/coco.git
+    ref: a1e52df2b9213eb0a16f91cfa635df8edbf9a507   # commit used for the article
+  pairedBamToBed12:
+    repo: https://github.com/Population-Transcriptomics/pairedBamToBed12.git
+    ref: f76d4ec142611345210bf6eb1726aa1cc3d308f4   # commit used for the article
+
+# -----------------------------------------------------------------------------
+# Datasets. Keys must match the `dataset` column of the manifest (= first-level
+# sub-directory of the FASTQ folder). `role` tells the workflow how the
+# dataset is used:
+#   discovery         total RNA-seq used to discover candidate transcripts (exactly one)
+#   dkc1_depletion    DKC1 knock-down (DESeq2)          -> H/ACA evidence
+#   nop58_depletion   NOP58 knock-down (DESeq2)         -> C/D evidence
+#   snu13_ripenseq      SNU13 RiPEN-seq (TPM)             -> C/D evidence
+#   snu13_depletion   SNU13 (NHP2L1) knock-down (DESeq2) -> C/D evidence
+# `conditions` (regex on sample name) fills the manifest `condition` column.
+# Placeholders: {adapters} is replaced by the dataset adapter file.
+# Parameters below reproduce the published pipeline.
+# -----------------------------------------------------------------------------
+_star_pe: &star_pe >-
+  --outFilterType BySJout --outSAMunmapped None --outSAMtype BAM SortedByCoordinate
+  --outFilterScoreMinOverLread 0.3 --outFilterMatchNminOverLread 0.3
+  --outFilterMultimapNmax 100 --winAnchorMultimapNmax 100
+  --alignEndsProtrude 5 ConcordantPair
+_trimmomatic: &trimmomatic "ILLUMINACLIP:{adapters}:2:12:10:8:true LEADING:30 TRAILING:30 MINLEN:20"
+
+datasets:
+  tissues:
+    role: discovery
+    adapters: adapters_nextseq
+    cutadapt: "-a file:{adapters} -A file:{adapters}"
+    trimmomatic: *trimmomatic
+    star: *star_pe
+    coco_cc: "--strand 1"
+  dkc1_kd:
+    role: dkc1_depletion
+    adapters: adapters_nextseq
+    cutadapt: ""                    # empty = step skipped (as in the original)
+    trimmomatic: *trimmomatic
+    star: *star_pe
+    coco_cc: "--strand 1"
+    conditions: {control: "^Lipofectamine", knockdown: "^DKC1"}
+  nop58_kd:
+    role: nop58_depletion
+    adapters: adapters_nextseq
+    cutadapt: "-a file:{adapters} -A file:{adapters}"
+    trimmomatic: *trimmomatic
+    star: *star_pe
+    coco_cc: "--strand 1"
+    conditions: {control: "^Allstar", knockdown: "^NOP58"}
+  snu13_ripenseq:
+    role: snu13_ripenseq
+    adapters: adapters_ripenseq
+    cutadapt: "-a file:{adapters} -A file:{adapters} -g file:{adapters} -G file:{adapters}"
+    trimmomatic: *trimmomatic
+    star: *star_pe
+    coco_cc: "--strand 1"
+  nhp2l1_kd:                        # SNU13 (NHP2L1) knock-down, from nhp2l1_analysis.smk
+    role: snu13_depletion
+    adapters: adapters_rbp_toronto
+    cutadapt: "-a file:{adapters} -A file:{adapters}"
+    trimmomatic: *trimmomatic
+    star: *star_pe
+    coco_cc: "--strand 1"
+    conditions: {control: "^LF_72h", knockdown: "^NHP2L1"}
+
+# -----------------------------------------------------------------------------
+# Global parameters
+# -----------------------------------------------------------------------------
+star_sjdb_overhang: 74
+stringtie: "--fr -m 50"
+merged_name: human_tissus_samples
+# Suffix appended to StringTie gene_ids (stringtie_geneId.py --suffixe).
+# The original pipeline used $SLURM_JOB_ID (not reproducible). Options:
+#   index  -> 1-based rank of the sample in the manifest (numeric, deterministic)
+#   sample -> sample name
+geneid_suffix: index
+# Coverage tracks of the discovery samples (CoCo correct_bedgraph -> bigWig, and
+# the bedgraph filtering of candidates). Long jobs, not needed for the main
+# outputs; true also installs pairedBamToBed12 during setup.
+coverage_tracks: false

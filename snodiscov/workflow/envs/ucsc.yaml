@@ -1,0 +1,6 @@
+channels:
+  - conda-forge
+  - bioconda
+  - nodefaults
+dependencies:
+  - ucsc-bedgraphtobigwig=445   # replaces the rsync download of the UCSC binary

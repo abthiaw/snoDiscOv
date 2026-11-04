@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "snodiscov"
+version = "1.0.0"
+description = "Integrative transcriptomic discovery of human snoRNAs (Snakemake workflow + CLI)"
+readme = "README.md"
+requires-python = ">=3.9"
+authors = [{ name = "Alphonse Birane Thiaw" }]
+dependencies = [
+  "snakemake>=7.26,<10",
+  "pandas>=1.3",
+  "pyyaml",
+]
+
+[project.optional-dependencies]
+test = ["pytest"]
+# Snakemake >= 8 on SLURM: pip install .[slurm]
+slurm = ["snakemake>=8", "snakemake-executor-plugin-slurm"]
+
+[project.scripts]
+snodiscov = "snodiscov.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["snodiscov*"]
+
+[tool.setuptools.package-data]
+snodiscov = [
+  "workflow/Snakefile", "workflow/rules/*.smk", "workflow/envs/*.yaml", "workflow/envs/*.txt",
+  "workflow/schemas/*.yaml", "workflow/scripts/*", "config/*.yaml",
+  "profiles/*/*.yaml", "profiles/*/*.v8+.yaml", "data/Adapters/*",
+]

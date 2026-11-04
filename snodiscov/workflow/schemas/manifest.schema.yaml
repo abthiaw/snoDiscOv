@@ -1,0 +1,14 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+description: one row per sequencing library
+type: object
+required: [sample, dataset, condition, layout, fq1]
+properties:
+  # no dots: cocoCount_merged.py derives sample names with split(".")[0]
+  sample: {type: string, pattern: "^[A-Za-z0-9][A-Za-z0-9_-]*$"}
+  dataset: {type: string}
+  condition: {type: string}
+  layout: {enum: [PE, SE]}
+  fq1: {type: string, pattern: "\\.(fastq|fq)\\.gz$"}
+  fq2: {type: string}
+  md5_fq1: {type: string}
+  md5_fq2: {type: string}

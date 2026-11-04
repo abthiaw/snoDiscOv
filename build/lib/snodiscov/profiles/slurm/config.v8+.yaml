@@ -1,0 +1,25 @@
+# Snakemake >= 8 profile for SLURM clusters (e.g. Digital Research Alliance of Canada)
+# Requires: pip install snakemake-executor-plugin-slurm
+# The main Snakemake process stays on the login node: local rules (downloads,
+# symlinks, small cat/awk steps) run there; everything else is submitted.
+executor: slurm
+jobs: 200
+software-deployment-method: conda
+latency-wait: 120
+keep-going: true
+rerun-incomplete: true
+# only re-run on input changes (not on code/version metadata), as in the
+# original config; avoids re-downloading or re-installing after an upgrade
+rerun-triggers: mtime
+printshellcmds: true
+retries: 1
+max-jobs-per-second: 5
+default-resources:
+  # slurm_account is given on the command line: snodiscov run --account def-xxx
+  mem_mb: 20000
+  runtime: 180                       # minutes
+  # slurm_extra: "'--mail-type=FAIL --mail-user=you@example.org'"
+# per-rule overrides, e.g.:
+# set-resources:
+#   coco_cc:
+#     runtime: 2880

@@ -1,0 +1,56 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+description: snoDiscov configuration
+type: object
+required: [manifest, resources_dir, resources, tools, datasets, star_sjdb_overhang]
+properties:
+  manifest: {type: string}
+  resources_dir: {type: string}
+  resources:
+    type: object
+    required: [genome_fasta, annotation_gtf]
+    additionalProperties:
+      type: object
+      properties:
+        zenodo:
+          type: object
+          required: [record, file]
+          properties:
+            record: {type: [integer, string]}
+            file: {type: string}
+        url: {type: string}
+        path: {type: string}
+        package: {type: string}
+        md5: {type: [string, "null"]}
+        decompress: {type: boolean}
+        rename: {type: string}
+      oneOf:
+        - required: [zenodo]
+        - required: [url]
+        - required: [path]
+        - required: [package]
+  tools:
+    type: object
+    required: [coco, pairedBamToBed12]
+    additionalProperties:
+      type: object
+      required: [repo, ref]
+  datasets:
+    type: object
+    minProperties: 1
+    additionalProperties:
+      type: object
+      required: [role, adapters, star]
+      properties:
+        role: {enum: [discovery, dkc1_depletion, nop58_depletion, snu13_ripenseq, snu13_depletion]}
+        adapters: {type: string}
+        cutadapt: {type: string, default: ""}
+        trimmomatic: {type: string, default: ""}
+        star: {type: string}
+        coco_cc: {type: string, default: "--strand 1"}
+        conditions: {type: object}
+        conditions_file: {type: string}
+  star_sjdb_overhang: {type: integer, minimum: 1}
+  stringtie: {type: string, default: "--fr -m 50"}
+  merged_name: {type: string, default: human_tissus_samples}
+  geneid_suffix: {enum: [index, sample], default: index}
+  coverage_tracks: {type: boolean, default: false}

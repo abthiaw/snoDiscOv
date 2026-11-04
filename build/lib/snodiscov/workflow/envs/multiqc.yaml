@@ -1,0 +1,8 @@
+channels:
+  - conda-forge
+  - bioconda
+  - nodefaults
+dependencies:
+  - python=3.11
+  - setuptools<70       # MultiQC 1.14 imports pkg_resources (removed from recent setuptools)
+  - multiqc=1.14        # unpinned in the original env: confirm with export-envs

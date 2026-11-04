@@ -1,0 +1,10 @@
+snakemake<10,>=7.26
+pandas>=1.3
+pyyaml
+
+[slurm]
+snakemake>=8
+snakemake-executor-plugin-slurm
+
+[test]
+pytest

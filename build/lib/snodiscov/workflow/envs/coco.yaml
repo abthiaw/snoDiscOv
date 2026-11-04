@@ -1,0 +1,11 @@
+channels:
+  - conda-forge
+  - bioconda
+  - nodefaults
+dependencies:
+  - python=3.7          # unpinned originally; pandas 0.24.2 needs python <= 3.7
+  - pandas=0.24.2
+  - numpy=1.17.2
+  - subread=2.0.3
+  - bedtools=2.31.0
+  - samtools=1.17

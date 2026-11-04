@@ -1,0 +1,40 @@
+# =============================================================================
+#  snoDiscov - integrative transcriptomic discovery of human snoRNAs
+#  Entry point. Normally launched through the `snodiscov` command line wrapper:
+#      snodiscov init  <FASTQ_DIR> -o <RUN_DIR>
+#      snodiscov setup -d <RUN_DIR>          (node with internet access)
+#      snodiscov run   -d <RUN_DIR> --profile slurm
+# =============================================================================
+import os
+
+from snakemake.utils import min_version
+
+min_version("7.26")
+
+
+# No default `configfile:` on purpose: a deep merge of the template with the
+# run config would mix resource specs. Always pass --configfile (the
+# `snodiscov` wrapper does it for you).
+if not config:
+    raise ValueError("No configuration given: use --configfile <run>/config.yaml")
+
+
+include: "rules/common.smk"
+include: "rules/setup.smk"
+include: "rules/preprocess.smk"
+include: "rules/align_quant.smk"
+include: "rules/discovery.smk"
+include: "rules/annotation.smk"
+include: "rules/validation.smk"
+
+
+rule all:
+    input:
+        all_targets(),
+
+
+# ------------------------------------------------------------- provenance --
+# Written after every successful run: software versions, exact inputs and
+# third-party tool commits, so a result can be traced back (FAIR R1.2).
+onsuccess:
+    write_provenance("results/provenance.yaml")

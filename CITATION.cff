@@ -1,0 +1,9 @@
+cff-version: 1.2.0
+title: "snoDiscov: integrative transcriptomic discovery of human snoRNAs"
+version: 1.0.0
+type: software
+authors:
+  - family-names: Thiaw
+    given-names: Alphonse Birane
+    affiliation: "Université de Sherbrooke"
+repository-code: "https://github.com/abthiaw/snoDiscOv"

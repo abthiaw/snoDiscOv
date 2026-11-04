@@ -1,0 +1,11 @@
+# Single machine / interactive allocation
+cores: all
+software-deployment-method: conda
+keep-going: true
+rerun-incomplete: true
+# only re-run on input changes (not on code/version metadata), as in the
+# original config; avoids re-downloading or re-installing after an upgrade
+rerun-triggers: mtime
+printshellcmds: true
+resources:
+  mem_mb: 120000
